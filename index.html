@@ -57,7 +57,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .hero{padding-block:16px 8px}
 .banner{width:100%;max-width:100%;border-radius:16px;display:block;aspect-ratio:1286/536;object-fit:cover;background:var(--surface)}
 .search{margin-top:-28px;position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;margin-inline:12px;
-  display:grid;grid-template-columns:2fr 1.3fr 1.2fr 1.2fr auto;gap:8px;box-shadow:0 12px 30px -18px rgba(10,30,70,.45)}
+  display:grid;grid-template-columns:2fr 1.3fr 1.2fr 1fr 1.1fr auto;gap:8px;box-shadow:0 12px 30px -18px rgba(10,30,70,.45)}
 .search label{display:flex;flex-direction:column;font-size:.75rem;color:var(--muted);gap:2px;min-width:0}
 .search input,.search select,.f input,.f select,.f textarea{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:9px 10px;width:100%;min-width:0}
 .search .btn{align-self:end}
@@ -145,11 +145,32 @@ section{padding-block:24px}
 .stat span{font-size:.8rem;color:var(--muted)}
 .ab-meta{display:flex;flex-direction:column;gap:6px;margin-top:12px}
 .ab-meta div{display:flex;gap:8px;flex-wrap:wrap}.ab-meta span{color:var(--muted);min-width:90px}
+.dealtag{position:absolute;left:10px;bottom:10px;background:var(--navy);color:var(--navy-ink);font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:6px}
+.dealtag.rent{background:var(--gold);color:#fff}
+.per{font-size:.85rem;font-weight:500;color:var(--muted)}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{font-size:.82rem;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.optgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px 10px}
+.optgrid label{flex-direction:row!important;align-items:center;gap:6px!important;font-weight:400!important}
+.optgrid input{width:auto}
+.yt{position:relative;width:100%;max-width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000}
+.yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.share{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.share span{font-size:.85rem;color:var(--muted)}
+details.loan{background:var(--bg);border-radius:10px;padding:10px 12px}
+details.loan summary{cursor:pointer;font-weight:600;color:var(--navy)}
+.loan .f{margin-top:10px;grid-template-columns:1fr 1fr 1fr}
+@media (max-width:480px){.loan .f{grid-template-columns:1fr 1fr}}
+.loan-out{margin-top:10px;font-size:.95rem}
+.loan-out b{font-family:var(--display);font-size:1.4rem;color:var(--green)}
+.note-flag{font-size:.75rem;color:var(--gold);font-weight:600}
+.secret{background:var(--gold-soft);border-radius:10px;padding:10px}
 footer{background:var(--navy);color:var(--navy-ink);margin-top:24px;padding-block:22px;font-size:.88rem}
 footer a{color:inherit}
 
 /* dialogs */
 dialog{border:0;border-radius:16px;padding:0;max-width:min(680px,calc(100vw - 24px));width:100%;background:var(--surface);color:var(--ink);max-height:calc(100dvh - 24px)}
+dialog{overflow-y:auto;overscroll-behavior:contain}
 dialog::backdrop{background:rgba(8,18,40,.6)}
 .dlg{position:relative;display:flex;flex-direction:column}
 .dlg-pad{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px}
@@ -203,6 +224,7 @@ dialog::backdrop{background:rgba(8,18,40,.6)}
     <label class="kw">ค้นหา<input id="q" type="search" placeholder="ทำเล อำเภอ หรือรหัสประกาศ"></label>
     <label>จังหวัด<select id="prov"><option value="">ทุกจังหวัด</option></select></label>
     <label>ประเภท<select id="type"><option value="">ทุกประเภท</option></select></label>
+    <label>ขายหรือเช่า<select id="deal"><option value="">ทั้งหมด</option><option>ขาย</option><option>เช่า</option></select></label>
     <label>งบไม่เกิน<select id="max"><option value="">ไม่จำกัด</option><option value="500000">5 แสน</option><option value="1000000">1 ล้าน</option><option value="2000000">2 ล้าน</option><option value="3000000">3 ล้าน</option><option value="5000000">5 ล้าน</option><option value="10000000">10 ล้าน</option></select></label>
     <button class="btn btn-main" type="submit">ค้นหา</button>
   </form>
@@ -282,8 +304,20 @@ dialog::backdrop{background:rgba(8,18,40,.6)}
     <div class="loc" id="v-loc"></div>
     <div class="facts" id="v-facts"></div>
     <a class="btn btn-ghost btn-sm" id="v-map" target="_blank" rel="noopener" style="width:fit-content" hidden>📍 เปิดแผนที่ Google Maps</a>
+    <div class="opts" id="v-opts"></div>
     <p class="desc" id="v-desc"></p>
+    <div class="yt" id="v-yt" hidden></div>
+    <details class="loan" id="v-loan"><summary>คำนวณค่างวดผ่อนบ้าน/ที่ดิน</summary>
+      <div class="f">
+        <label>เงินดาวน์ (%)<input id="ln-down" inputmode="decimal" value="10"></label>
+        <label>ดอกเบี้ยต่อปี (%)<input id="ln-rate" inputmode="decimal" value="6"></label>
+        <label>ระยะผ่อน (ปี)<input id="ln-years" inputmode="numeric" value="30"></label>
+      </div>
+      <div class="loan-out" id="ln-out"></div>
+      <span class="hint">ตัวเลขประมาณการเท่านั้น วงเงินและดอกเบี้ยจริงขึ้นกับธนาคารที่อนุมัติ</span>
+    </details>
     <div class="contact-box" id="v-contact"></div>
+    <div class="share" id="v-share"></div>
   </div>
 </div></dialog>
 
@@ -293,8 +327,9 @@ dialog::backdrop{background:rgba(8,18,40,.6)}
     <h3 id="e-head" style="font-size:1.2rem;color:var(--navy)">เพิ่มประกาศ</h3>
     <div class="f">
       <label class="full">หัวข้อประกาศ<input id="e-title" required placeholder="เช่น ที่ดินติดถนนลาดยาง วิวภูเขา"></label>
+      <label>ประกาศ<select id="e-deal"><option>ขาย</option><option>เช่า</option></select></label>
       <label>ประเภท<select id="e-type"></select></label>
-      <label>ราคา (บาท)<input id="e-price" required inputmode="numeric" placeholder="850000"></label>
+      <label><span id="e-price-l">ราคา (บาท)</span><input id="e-price" required inputmode="numeric" placeholder="850000"></label>
       <label>จังหวัด<select id="e-prov" required><option value="">เลือกจังหวัด</option></select></label>
       <label>อำเภอ<input id="e-amp" placeholder="วังสะพุง"></label>
       <label>ขนาด<input id="e-size" placeholder="2-1-40 ไร่ หรือ 35 ตร.ม."><span class="hint">ที่ดินเขียนแบบ ไร่-งาน-ตารางวา</span></label>
@@ -302,11 +337,14 @@ dialog::backdrop{background:rgba(8,18,40,.6)}
       <label class="full">ข้อมูลเด่นสั้น ๆ<input id="e-extra" placeholder="3 นอน 2 น้ำ / ติดถนนลาดยาง 6 ม."></label>
       <label class="full">รายละเอียด<textarea id="e-desc" placeholder="ทำเล จุดเด่น ไฟฟ้า ประปา ระยะทางถึงตัวเมือง"></textarea></label>
       <label class="full">ลิงก์ Google Maps (ถ้ามี)<input id="e-map" type="url" placeholder="https://maps.app.goo.gl/..."><span class="hint">เปิด Google Maps ปักหมุดที่ทรัพย์ กดแชร์ แล้วคัดลอกลิงก์มาวาง</span></label>
+      <label class="full">ลิงก์วิดีโอ YouTube (ถ้ามี)<input id="e-yt" type="url" placeholder="https://youtu.be/..."></label>
+      <div class="full"><span style="font-size:.88rem;font-weight:500">สิ่งอำนวยความสะดวก / จุดเด่น</span><div class="optgrid" id="e-opts"></div></div>
       <label class="full">รูปภาพ (สูงสุด 10 รูป รูปแรกเป็นปก)<input id="e-files" type="file" accept="image/*" multiple></label>
       <div class="pics full" id="e-pics"></div>
       <label class="check full"><input id="e-verified" type="checkbox"> ตรวจโฉนดแล้ว (เช็กสำเนาโฉนดกับเจ้าของทรัพย์แล้ว)</label>
       <label class="check full"><input id="e-feat" type="checkbox"> ประกาศเด่น (แสดงก่อน)</label>
-      <label class="check full"><input id="e-sold" type="checkbox"> ขายแล้ว</label>
+      <label class="check full"><input id="e-sold" type="checkbox"> ขายแล้ว / มีผู้เช่าแล้ว</label>
+      <div class="full secret"><label>🔒 โน้ตเจ้าของ (ลูกค้าไม่เห็น)<textarea id="e-note" placeholder="ราคาต้นทุน ราคาต่ำสุดที่เจ้าของรับได้ ค่าคอม ชื่อเจ้าของ"></textarea></label><span class="hint" id="e-note-h">โน้ตจะถูกเข้ารหัสด้วยรหัสโน้ตลับ ก่อนบันทึกขึ้นเว็บ</span></div>
     </div>
     <div class="err" id="e-err" hidden></div>
     <div class="row"><button class="btn btn-main" id="e-save" type="submit">บันทึกลงเว็บ</button><button class="btn btn-ghost" data-close type="button">ยกเลิก</button></div>
@@ -353,6 +391,7 @@ dialog::backdrop{background:rgba(8,18,40,.6)}
       <label>ที่ตั้ง<input id="s-area" placeholder="เช่น จ.เลย"></label>
       <label>เวลาติดต่อ<input id="s-hours" placeholder="เช่น ทุกวัน 8:00–20:00"></label>
       <label>ผู้ติดตามเพจ<input id="s-follow" placeholder="เช่น 15,000+"></label>
+      <label class="full">🔒 รหัสโน้ตลับ<input id="s-notekey" type="password" autocomplete="off" placeholder="ตั้งรหัสที่จำได้ อย่างน้อย 6 ตัว"><span class="hint">ใช้เข้ารหัสโน้ตเจ้าของ เก็บไว้ในเครื่องนี้เท่านั้น ไม่ขึ้นเว็บ ถ้าใช้หลายเครื่องต้องใส่รหัสเดียวกันทุกเครื่อง ถ้าลืมรหัส จะเปิดโน้ตเก่าไม่ได้</span></label>
     </div>
     <div class="err" id="s-err" hidden></div>
     <div class="row"><button class="btn btn-main" id="s-save" type="submit">บันทึก</button><button class="btn btn-ghost" data-close type="button">ยกเลิก</button></div>
@@ -379,7 +418,10 @@ dialog::backdrop{background:rgba(8,18,40,.6)}
 const $=s=>document.querySelector(s);
 const DEFAULT={"settings": {"phone": "", "line": "https://lin.ee/QgiXL8E", "fb": "", "chat": "", "site": "", "follow": "15,000+", "about": "เพจฝากขายอสังหา รับฝากขายบ้าน ที่ดิน คอนโด และอสังหาทุกประเภททั่วประเทศ ลงประกาศทั้งบนเพจเฟซบุ๊กและบนเว็บไซต์นี้ ผู้ซื้อติดต่อสอบถามได้โดยตรง เราขอสำเนาโฉนดจากเจ้าของทรัพย์ทุกรายก่อนลงประกาศ"}, "seq": 0, "listings": [], "plans": [{"n": "ลงปกติ", "p": 299, "d": "โพสต์ลงเพจ 1 ครั้ง และขึ้นเว็บ 60 วัน", "hot": false}, {"n": "ลงเด่น", "p": 599, "d": "ปักหมุดหน้าแรกเว็บ และโพสต์ซ้ำในเพจเดือนละ 2 ครั้ง ตลอด 60 วัน", "hot": true}, {"n": "ดันขาย (เริ่มต้น)", "p": 1500, "d": "ทุกอย่างในแพ็กเกจลงเด่น พร้อมยิงโฆษณาเฟซบุ๊ก แจ้งค่าโฆษณาแยกให้ทุกครั้ง", "hot": false}, {"n": "ต่ออายุประกาศ", "p": 199, "d": "ต่อประกาศเดิมอีก 60 วัน", "hot": false}], "terms": ["ชำระค่าลงประกาศก่อน ประกาศจะขึ้นหลังได้รับยอดเงิน", "ค่าลงประกาศไม่คืนทุกกรณี เป็นค่าการมองเห็น ไม่ได้รับประกันว่าจะขายได้", "ส่งสำเนาโฉนดหน้าแรก เพื่อยืนยันว่าเป็นเจ้าของหรือผู้รับมอบอำนาจ", "ขายได้แล้วแจ้งเราทันที เพื่อปิดประกาศ"]};
 let S=JSON.parse(JSON.stringify(DEFAULT));
-const TYPES=["บ้าน","ที่ดิน","คอนโด","ทาวน์โฮม","อาคารพาณิชย์","อื่น ๆ"];
+const TYPES=["บ้าน","ที่ดิน","คอนโด","ทาวน์โฮม","อาคารพาณิชย์","อพาร์ตเมนต์","โกดัง/โรงงาน","โรงแรม/รีสอร์ท","อื่น ๆ"];
+const OPTS=["แอร์","เครื่องทำน้ำอุ่น","ทีวี","ตู้เย็น","เครื่องซักผ้า","เฟอร์นิเจอร์","อินเทอร์เน็ต","ที่จอดรถ","สระว่ายน้ำ","ฟิตเนส","กล้องวงจรปิด","รปภ. 24 ชม.","ลิฟต์","ไฟฟ้า","น้ำประปา","ติดถนนลาดยาง","ใกล้ตลาด","ใกล้โรงเรียน","ใกล้โรงพยาบาล","ถมแล้ว"];
+const isRent=l=>l.deal==="เช่า";
+const priceText=l=>baht(l.price)+(isRent(l)?" /เดือน":"");
 const DEEDS=["โฉนด (น.ส.4จ.)","น.ส.3ก.","น.ส.3","หนังสือกรรมสิทธิ์ห้องชุด","ส.ป.ก.","อื่น ๆ"];
 const PROVS="กรุงเทพมหานคร กระบี่ กาญจนบุรี กาฬสินธุ์ กำแพงเพชร ขอนแก่น จันทบุรี ฉะเชิงเทรา ชลบุรี ชัยนาท ชัยภูมิ ชุมพร เชียงราย เชียงใหม่ ตรัง ตราด ตาก นครนายก นครปฐม นครพนม นครราชสีมา นครศรีธรรมราช นครสวรรค์ นนทบุรี นราธิวาส น่าน บึงกาฬ บุรีรัมย์ ปทุมธานี ประจวบคีรีขันธ์ ปราจีนบุรี ปัตตานี พระนครศรีอยุธยา พะเยา พังงา พัทลุง พิจิตร พิษณุโลก เพชรบุรี เพชรบูรณ์ แพร่ ภูเก็ต มหาสารคาม มุกดาหาร แม่ฮ่องสอน ยโสธร ยะลา ร้อยเอ็ด ระนอง ระยอง ราชบุรี ลพบุรี ลำปาง ลำพูน เลย ศรีสะเกษ สกลนคร สงขลา สตูล สมุทรปราการ สมุทรสงคราม สมุทรสาคร สระแก้ว สระบุรี สิงห์บุรี สุโขทัย สุพรรณบุรี สุราษฎร์ธานี สุรินทร์ หนองคาย หนองบัวลำภู อ่างทอง อำนาจเจริญ อุดรธานี อุตรดิตถ์ อุทัยธานี อุบลราชธานี".split(" ");
 const ICON={
@@ -402,8 +444,10 @@ const imgSrc=s=>LOCAL[s]||(/^(data:|https:|images\/)/.test(s||"")?s:"");
 let admin=false,adminView=true;
 
 opt($("#type"),TYPES);opt($("#c-type"),TYPES);opt($("#e-type"),TYPES);
+$("#e-opts").innerHTML=OPTS.map((o,i)=>`<label><input type="checkbox" value="${esc(o)}" id="e-opt${i}"> ${esc(o)}</label>`).join("");
+$("#e-deal").addEventListener("change",()=>$("#e-price-l").textContent=$("#e-deal").value==="เช่า"?"ค่าเช่าต่อเดือน (บาท)":"ราคา (บาท)");
 opt($("#c-deed"),DEEDS);opt($("#e-deed"),DEEDS);opt($("#c-prov"),PROVS);opt($("#e-prov"),PROVS);
-["ทั้งหมด",...TYPES.slice(0,5)].forEach(t=>{const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=t;b.onclick=()=>{$("#type").value=t==="ทั้งหมด"?"":t;render()};$("#chips").append(b)});
+["ทั้งหมด",...TYPES.slice(0,8)].forEach(t=>{const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=t;b.onclick=()=>{$("#type").value=t==="ทั้งหมด"?"":t;render()};$("#chips").append(b)});
 
 const DATEF=t=>t?new Date(t).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"}):"";
 function areaInfo(size){
@@ -422,6 +466,14 @@ function pricePer(l){
   if(a.wa){const w=`ตร.วา ละ ${f(p/a.wa)} บาท`;return a.wa>=400?`ไร่ละ ${f(p/a.wa*400)} บาท · ${w}`:w}
   return `ตร.ม. ละ ${f(p/a.sqm)} บาท`;
 }
+function ytId(u){const m=String(u||"").match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([\w-]{11})/);return m?m[1]:""}
+function calcLoan(){
+  const P=+$("#v-loan").dataset.price||0,d=num($("#ln-down").value)/100,r=num($("#ln-rate").value)/100/12,n=Math.round(num($("#ln-years").value)*12);
+  const L=P*(1-Math.min(d,1));if(!P||!n){$("#ln-out").textContent="";return}
+  const m=r?L*r/(1-Math.pow(1+r,-n)):L/n,f=x=>Math.round(x).toLocaleString("th-TH");
+  $("#ln-out").innerHTML=`ผ่อนประมาณ <b>${f(m)}</b> บาท/เดือน<br><span class="hint">วงเงินกู้ ${f(L)} บาท · เงินดาวน์ ${f(P-L)} บาท · ผ่อน ${n/12} ปี</span>`;
+}
+["#ln-down","#ln-rate","#ln-years"].forEach(x=>$(x).addEventListener("input",calcLoan));
 function provOptions(){
   const sel=$("#prov"),cur=sel.value,ps=[...new Set(S.listings.map(l=>l.prov))].sort((a,b)=>a.localeCompare(b,"th"));
   sel.innerHTML='<option value="">ทุกจังหวัด</option>';opt(sel,ps);if(ps.includes(cur))sel.value=cur;
@@ -431,11 +483,11 @@ function cardHTML(l){
   const pp=pricePer(l);
   return `<article class="card${l.sold?" is-sold":""}">
    <button class="card-open" type="button" data-open="${esc(l.id)}">
-    <div class="thumb">${img?`<img src="${esc(img)}" alt="" loading="lazy">`:icon(l.type)}<span class="tag">${esc(l.type)}</span>${l.feat?'<span class="feat">ประกาศเด่น</span>':""}${l.sold?'<span class="sold">ขายแล้ว</span>':""}</div>
+    <div class="thumb">${img?`<img src="${esc(img)}" alt="" loading="lazy">`:icon(l.type)}<span class="tag">${esc(l.type)}</span><span class="dealtag${isRent(l)?" rent":""}">${isRent(l)?"ให้เช่า":"ขาย"}</span>${l.feat?'<span class="feat">ประกาศเด่น</span>':""}${l.sold?`<span class="sold">${isRent(l)?"มีผู้เช่าแล้ว":"ขายแล้ว"}</span>`:""}</div>
     <div class="cbody">
      <span class="code">รหัส ${esc(l.code)}${l.t?" · ลงเมื่อ "+DATEF(l.t):""}</span>
-     <div class="price">${baht(l.price)}</div>${pp?`<div class="ppa">${esc(pp)}</div>`:""}
-     <div class="ctitle">${esc(l.title)}</div>${l.verified?'<span class="vbadge">✓ ตรวจโฉนดแล้ว</span>':""}
+     <div class="price">${baht(l.price)}${isRent(l)?'<span class="per"> /เดือน</span>':""}</div>${pp&&!isRent(l)?`<div class="ppa">${esc(pp)}</div>`:""}
+     <div class="ctitle">${esc(l.title)}</div>${l.verified?'<span class="vbadge">✓ ตรวจโฉนดแล้ว</span>':""}${admin&&adminView&&l.note?'<span class="note-flag">🔒 มีโน้ตเจ้าของ</span>':""}
      <div class="loc">${l.amp?"อ."+esc(l.amp)+" ":""}จ.${esc(l.prov)}</div>
      <div class="specs">${[l.size,l.extra,l.deed].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join("")}</div>
     </div></button>
@@ -444,9 +496,9 @@ function cardHTML(l){
 }
 function render(){
   provOptions();
-  const q=$("#q").value.trim().toLowerCase(),p=$("#prov").value,t=$("#type").value,m=num($("#max").value)||Infinity,so=$("#sort").value;
-  let list=S.listings.filter(l=>(!p||l.prov===p)&&(!t||l.type===t)&&l.price<=m&&
-    (!q||[l.title,l.desc,l.amp,l.prov,l.code,l.extra].join(" ").toLowerCase().includes(q)));
+  const dl=$("#deal").value,q=$("#q").value.trim().toLowerCase(),p=$("#prov").value,t=$("#type").value,m=num($("#max").value)||Infinity,so=$("#sort").value;
+  let list=S.listings.filter(l=>(!dl||(dl==="เช่า")===isRent(l))&&(!p||l.prov===p)&&(!t||l.type===t)&&l.price<=m&&
+    (!q||[l.title,l.desc,l.amp,l.prov,l.code,l.extra,...(l.opts||[])].join(" ").toLowerCase().includes(q)));
   list.sort((a,b)=>((a.sold|0)-(b.sold|0))||(so==="low"?a.price-b.price:so==="high"?b.price-a.price:((b.feat|0)-(a.feat|0))||(b.t-a.t)));
   document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String((c.textContent==="ทั้งหมด"&&!t)||c.textContent===t)));
   const ns=list.filter(l=>l.sold).length;$("#count").textContent=`${list.length-ns} ประกาศ${ns?` · ขายแล้ว ${ns}`:""}`;
@@ -459,7 +511,7 @@ function render(){
 }
 function contactHTML(code){
   const s=S.settings||{},rows=[];
-  if(s.phone)rows.push(`<div class="cline"><span>โทร</span><b>${esc(s.phone)}</b><button class="btn btn-ghost btn-sm" type="button" data-copy="${esc(s.phone)}">คัดลอก</button></div>`);
+  if(s.phone)rows.push(`<div class="cline"><span>โทร</span><b>${esc(s.phone)}</b><a class="btn btn-green btn-sm" href="tel:${esc(String(s.phone).replace(/[^\d+]/g,""))}">📞 โทรเลย</a><button class="btn btn-ghost btn-sm" type="button" data-copy="${esc(s.phone)}">คัดลอก</button></div>`);
   if(s.line)rows.push(`<div class="cline"><span>LINE</span>${isUrl(s.line)?"":`<b>${esc(s.line)}</b>`}<a class="btn btn-ghost btn-sm" href="${esc(lineUrl(s.line))}" target="_blank" rel="noopener">เพิ่มเพื่อน</a></div>`);
   const chat=safeUrl(s.chat)||safeUrl(s.fb);
   if(chat)rows.push(`<div class="cline"><span>เฟซบุ๊ก</span><a class="btn btn-ghost btn-sm" href="${esc(chat)}" target="_blank" rel="noopener">ทักแชทเพจ</a></div>`);
@@ -482,9 +534,14 @@ function openView(id){
   $("#v-thumbs").onclick=e=>{const b=e.target.closest("[data-i]");if(b)show(+b.dataset.i)};
   show(0);
   $("#v-code").textContent="รหัสประกาศ "+l.code+(l.t?" · ลงเมื่อ "+DATEF(l.t):"")+(l.u&&l.u-l.t>864e5?" · อัปเดต "+DATEF(l.u):"")+(l.sold?" · ขายแล้ว":"");
-  $("#v-price").textContent=baht(l.price);$("#v-title").textContent=l.title;
+  $("#v-price").textContent=priceText(l);$("#v-title").textContent=l.title;
   $("#v-loc").textContent=(l.amp?"อ."+l.amp+" ":"")+"จ."+l.prov;
-  $("#v-facts").innerHTML=[["ประเภท",l.type],["ขนาด",l.size],["ราคาต่อพื้นที่",pricePer(l)],["เอกสารสิทธิ์",l.deed+(l.verified?" ✓ ตรวจแล้ว":"")],["ข้อมูลเด่น",l.extra]].filter(f=>f[1]).map(([k,v])=>`<div class="fact"><span>${k}</span><b>${esc(v)}</b></div>`).join("");
+  $("#v-facts").innerHTML=[["ประเภท",l.type],["ขนาด",l.size],["ราคาต่อพื้นที่",isRent(l)?"":pricePer(l)],["เอกสารสิทธิ์",l.deed+(l.verified?" ✓ ตรวจแล้ว":"")],["ข้อมูลเด่น",l.extra]].filter(f=>f[1]).map(([k,v])=>`<div class="fact"><span>${k}</span><b>${esc(v)}</b></div>`).join("");
+  $("#v-opts").innerHTML=(l.opts||[]).map(o=>`<span class="opt">✓ ${esc(o)}</span>`).join("");
+  const yid=ytId(l.yt);$("#v-yt").hidden=!yid;$("#v-yt").innerHTML=yid?`<iframe src="https://www.youtube-nocookie.com/embed/${yid}" title="วิดีโอทรัพย์" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`:"";
+  $("#v-loan").hidden=isRent(l)||!l.price;$("#v-loan").dataset.price=l.price||0;calcLoan();
+  const url=siteLink()+"#"+l.code,eu=encodeURIComponent(url);
+  $("#v-share").innerHTML=siteLink()?`<span>แชร์ประกาศ</span><a class="btn btn-ghost btn-sm" href="https://www.facebook.com/sharer/sharer.php?u=${eu}" target="_blank" rel="noopener">เฟซบุ๊ก</a><a class="btn btn-ghost btn-sm" href="https://social-plugins.line.me/lineit/share?url=${eu}" target="_blank" rel="noopener">LINE</a><button class="btn btn-ghost btn-sm" type="button" data-copy="${esc(url)}">คัดลอกลิงก์</button>`:"";
   const mp=safeUrl(l.map);$("#v-map").hidden=!mp;if(mp)$("#v-map").href=mp;
   $("#v-desc").textContent=l.desc||"";$("#v-desc").hidden=!l.desc;
   $("#v-contact").innerHTML=contactHTML(l.code)+(admin&&adminView?`<button class="btn btn-green btn-sm" type="button" data-vpost="${esc(l.id)}">โพสต์เฟซบุ๊ก</button>`:"");
@@ -506,7 +563,7 @@ document.addEventListener("click",e=>{
 document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close()}));
 
 $("#search").addEventListener("submit",e=>{e.preventDefault();render();$("#listings").scrollIntoView({behavior:"smooth"})});
-["#prov","#type","#max","#sort"].forEach(s=>$(s).addEventListener("change",render));
+["#prov","#type","#deal","#max","#sort"].forEach(s=>$(s).addEventListener("change",render));
 $("#q").addEventListener("input",render);
 $("#grid").addEventListener("click",async e=>{
   const o=e.target.closest("[data-open]");if(o)return openView(o.dataset.open);
@@ -563,7 +620,16 @@ function renderAbout(){
 function renderAll(){renderContact();renderPlans();renderAbout();render();if(admin)$("#adm-info").textContent=`${S.listings.length} ประกาศ`}
 
 /* ---------- GitHub storage (owner only) ---------- */
-const GHKEY="fakkhai-gh";
+const GHKEY="fakkhai-gh",NKEY="fakkhai-notekey";
+const noteKey=()=>{try{return localStorage.getItem(NKEY)||""}catch{return ""}};
+async function aesKey(salt){const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(noteKey()),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:150000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+const u8b64=u=>btoa(String.fromCharCode(...u)),b64u8=b=>Uint8Array.from(atob(b),c=>c.charCodeAt(0));
+async function encNote(t){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},await aesKey(salt),new TextEncoder().encode(t)));
+  return "v1."+u8b64(salt)+"."+u8b64(iv)+"."+u8b64(ct)}
+async function decNote(n){const[,s1,i1,c1]=String(n).split(".");
+  return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:b64u8(i1)},await aesKey(b64u8(s1)),b64u8(c1)))}
 let GH=null,SHA=null,SAVED_IMGS=new Set();
 try{GH=JSON.parse(localStorage.getItem(GHKEY)||"null")}catch{}
 const b64enc=str=>{const b=new TextEncoder().encode(str);let s="";for(let i=0;i<b.length;i+=8192)s+=String.fromCharCode(...b.subarray(i,i+8192));return btoa(s)};
@@ -646,6 +712,10 @@ function openEdit(id){
   $("#e-title").value=l.title||"";$("#e-type").value=l.type||TYPES[0];$("#e-price").value=l.price||"";
   $("#e-prov").value=l.prov||"";$("#e-amp").value=l.amp||"";$("#e-size").value=l.size||"";$("#e-deed").value=l.deed||DEEDS[0];
   $("#e-extra").value=l.extra||"";$("#e-desc").value=l.desc||"";$("#e-feat").checked=!!l.feat;$("#e-sold").checked=!!l.sold;$("#e-verified").checked=!!l.verified;$("#e-map").value=l.map||"";
+  $("#e-deal").value=l.deal||"ขาย";$("#e-deal").dispatchEvent(new Event("change"));$("#e-yt").value=l.yt||"";
+  document.querySelectorAll("#e-opts input").forEach(c=>c.checked=(l.opts||[]).includes(c.value));
+  $("#e-note").value="";$("#e-note").dataset.ok=l.note?"0":"1";$("#e-note-h").textContent=noteKey()?"โน้ตจะถูกเข้ารหัสก่อนบันทึกขึ้นเว็บ":"ต้องตั้ง \"รหัสโน้ตลับ\" ในตั้งค่าการติดต่อก่อน จึงจะบันทึกโน้ตได้";
+  if(l.note){if(noteKey())decNote(l.note).then(t=>{$("#e-note").value=t;$("#e-note").dataset.ok="1"}).catch(()=>{$("#e-note-h").textContent="เปิดโน้ตไม่ได้ รหัสโน้ตลับในเครื่องนี้ไม่ตรงกับตอนบันทึก"});else $("#e-note-h").textContent="ประกาศนี้มีโน้ตอยู่ ตั้งรหัสโน้ตลับในเครื่องนี้ก่อนจึงจะเปิดดูได้"}
   PICS=[...(l.imgs||[])];drawPics();$("#e-err").hidden=true;$("#dedit").showModal();
 }
 $("#eform").addEventListener("submit",async e=>{
@@ -653,15 +723,22 @@ $("#eform").addEventListener("submit",async e=>{
   const before=JSON.stringify(S);
   const d={title:$("#e-title").value.trim(),type:$("#e-type").value,price:num($("#e-price").value),prov:$("#e-prov").value,amp:$("#e-amp").value.trim(),
     size:$("#e-size").value.trim(),deed:$("#e-deed").value,extra:$("#e-extra").value.trim(),desc:$("#e-desc").value.trim(),
-    feat:$("#e-feat").checked,sold:$("#e-sold").checked,verified:$("#e-verified").checked,map:safeUrl($("#e-map").value.trim()),imgs:PICS.slice(),u:Date.now()};
+    feat:$("#e-feat").checked,sold:$("#e-sold").checked,verified:$("#e-verified").checked,map:safeUrl($("#e-map").value.trim()),imgs:PICS.slice(),u:Date.now(),
+    deal:$("#e-deal").value,yt:$("#e-yt").value.trim(),opts:[...document.querySelectorAll("#e-opts input:checked")].map(c=>c.value)};
+  const nt=$("#e-note").value.trim();
+  if(nt){if(!noteKey()){$("#e-err").textContent="ยังไม่ได้ตั้งรหัสโน้ตลับ ไปตั้งที่ ตั้งค่าการติดต่อ ก่อน หรือลบข้อความในช่องโน้ตออก";$("#e-err").hidden=false;return}
+    try{d.note=await encNote(nt)}catch{$("#e-err").textContent="เข้ารหัสโน้ตไม่สำเร็จ";$("#e-err").hidden=false;return}}
+  else if(!EDIT||!EDIT.note||$("#e-note").dataset.ok==="1")d.note="";
   if(EDIT)Object.assign(EDIT,d);
   else{S.seq=(S.seq||0)+1;S.listings.push({id:"L"+Date.now().toString(36),code:"AS-"+String(S.seq).padStart(4,"0"),t:Date.now(),...d})}
   if(!await save($("#e-save"),$("#e-err")))S=JSON.parse(before);
 });
 $("#adm-add").onclick=()=>openEdit();
-$("#adm-set").onclick=()=>{const s=S.settings||{};$("#s-phone").value=s.phone||"";$("#s-line").value=s.line||"";$("#s-fb").value=s.fb||"";$("#s-chat").value=s.chat||"";$("#s-site").value=s.site||"";$("#s-about").value=s.about??DEFAULT.settings.about;$("#s-name").value=s.name||"";$("#s-area").value=s.area||"";$("#s-hours").value=s.hours||"";$("#s-follow").value=s.follow??DEFAULT.settings.follow;$("#s-err").hidden=true;$("#dset").showModal()};
+$("#adm-set").onclick=()=>{const s=S.settings||{};$("#s-phone").value=s.phone||"";$("#s-line").value=s.line||"";$("#s-fb").value=s.fb||"";$("#s-chat").value=s.chat||"";$("#s-site").value=s.site||"";$("#s-notekey").value=noteKey();$("#s-about").value=s.about??DEFAULT.settings.about;$("#s-name").value=s.name||"";$("#s-area").value=s.area||"";$("#s-hours").value=s.hours||"";$("#s-follow").value=s.follow??DEFAULT.settings.follow;$("#s-err").hidden=true;$("#dset").showModal()};
 $("#sform").addEventListener("submit",async e=>{
   e.preventDefault();const before={...S.settings};
+  const nk=$("#s-notekey").value;if(nk&&nk.length<6){$("#s-err").textContent="รหัสโน้ตลับต้องยาวอย่างน้อย 6 ตัว";$("#s-err").hidden=false;return}
+  try{nk?localStorage.setItem(NKEY,nk):localStorage.removeItem(NKEY)}catch{}
   S.settings={phone:$("#s-phone").value.trim(),line:$("#s-line").value.trim(),fb:safeUrl($("#s-fb").value.trim()),chat:safeUrl($("#s-chat").value.trim()),site:safeUrl($("#s-site").value.trim()),about:$("#s-about").value.trim(),name:$("#s-name").value.trim(),area:$("#s-area").value.trim(),hours:$("#s-hours").value.trim(),follow:$("#s-follow").value.trim()};
   if(!await save($("#s-save"),$("#s-err")))S.settings=before;
 });
@@ -676,13 +753,15 @@ function siteLink(){
 function postText(l){
   const s=S.settings||{},link=siteLink();
   const tag=t=>"#"+String(t).replace(/[\s()\.,]/g,"");
-  const L=[`🏡 ขาย${l.type} ${l.title}`,"",`💰 ราคา ${Number(l.price||0).toLocaleString("th-TH")} บาท`,
+  const L=[`🏡 ${isRent(l)?"ให้เช่า":"ขาย"}${l.type} ${l.title}`,"",`💰 ${isRent(l)?"ค่าเช่า":"ราคา"} ${Number(l.price||0).toLocaleString("th-TH")} บาท${isRent(l)?"/เดือน":""}`,
     `📍 ${l.amp?"อ."+l.amp+" ":""}จ.${l.prov}`];
   if(l.size)L.push(`📐 ขนาด ${l.size}`);
-  if(pricePer(l))L.push(`📊 ${pricePer(l)}`);
+  if(pricePer(l)&&!isRent(l))L.push(`📊 ${pricePer(l)}`);
+  if((l.opts||[]).length)L.push(`✨ ${(l.opts||[]).join(" · ")}`);
   if(l.deed)L.push(`📄 เอกสารสิทธิ์ ${l.deed}${l.verified?" (ตรวจโฉนดแล้ว)":""}`);
   if(l.extra)L.push(`✅ ${l.extra}`);
   if(safeUrl(l.map))L.push(`🗺 แผนที่ ${l.map}`);
+  if(ytId(l.yt))L.push(`🎬 วิดีโอ ${l.yt}`);
   if(l.desc)L.push("",l.desc);
   L.push("");
   if(s.phone)L.push(`📞 โทร ${s.phone}`);
@@ -690,7 +769,7 @@ function postText(l){
   if(!s.phone&&!s.line)L.push("💬 สนใจทักแชทเพจได้เลย");
   L.push(`🔖 รหัสประกาศ ${l.code}`);
   if(link)L.push(`🔎 ดูรูปและรายละเอียดเพิ่ม ${link}#${l.code}`);
-  L.push("",[tag("ขาย"+l.type),tag("ขาย"+l.type+l.prov),tag("อสังหา"+l.prov),"#ฝากขายอสังหา","#ฝากขายอสังหาทั่วประเทศ"].join(" "));
+  L.push("",[tag((isRent(l)?"ให้เช่า":"ขาย")+l.type),tag((isRent(l)?"เช่า":"ขาย")+l.type+l.prov),tag("อสังหา"+l.prov),"#ฝากขายอสังหา","#ฝากขายอสังหาทั่วประเทศ"].join(" "));
   return L.join("\n");
 }
 function openPost(id){
